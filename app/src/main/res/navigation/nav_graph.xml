@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/dashboardFragment">
+
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.example.myapplication.ui.dashboard.DashboardFragment"
+        android:label="Accueil"
+        tools:layout="@layout/fragment_dashboard" />
+
+    <fragment
+        android:id="@+id/transactionsListFragment"
+        android:name="com.example.myapplication.ui.transactions.TransactionsListFragment"
+        android:label="Transactions"
+        tools:layout="@layout/fragment_transactions_list">
+        <action
+            android:id="@+id/action_list_to_add"
+            app:destination="@id/addTransactionFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addTransactionFragment"
+        android:name="com.example.myapplication.ui.transactions.AddTransactionFragment"
+        android:label="Ajouter / Modifier"
+        tools:layout="@layout/fragment_add_transaction">
+        <argument
+            android:name="transactionId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/budgetsFragment"
+        android:name="com.example.myapplication.ui.budgets.BudgetsFragment"
+        android:label="Budgets"
+        tools:layout="@layout/fragment_budgets" />
+
+    <fragment
+        android:id="@+id/recurringExpensesFragment"
+        android:name="com.example.myapplication.ui.recurring.RecurringExpensesFragment"
+        android:label="Charges fixes"
+        tools:layout="@layout/fragment_recurring_expenses" />
+
+</navigation>
