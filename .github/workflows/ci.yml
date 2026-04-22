@@ -1,0 +1,75 @@
+name: Android CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build-and-test:
+    name: Lint, Analyze, and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks out the repository so the workflow can access source code.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Sets up JDK 17 for Android/Gradle build tooling.
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # Caches Gradle dependencies and wrapper for faster builds.
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # Ensures Gradle wrapper is executable on Linux runners.
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # Runs ktlint checks for Kotlin code style consistency.
+      - name: Run ktlint
+        run: ./gradlew ktlintCheck
+
+      # Runs Detekt static analysis to catch code quality issues.
+      - name: Run Detekt
+        run: ./gradlew detekt
+
+      # Runs local JVM unit tests (JUnit and related test suites).
+      - name: Run unit tests
+        run: ./gradlew test
+
+      # Optionally runs instrumented Android tests via emulator.
+      # This step is skippable and won't fail the workflow if no emulator/tests are available.
+      - name: Run instrumented tests (optional)
+        uses: ReactiveCircus/android-emulator-runner@v2
+        continue-on-error: true
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: pixel_6
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect
+          script: ./gradlew connectedDebugAndroidTest
+
+      # Uploads all generated test and analysis reports as workflow artifacts.
+      - name: Upload test and analysis reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-reports
+          path: |
+            **/build/reports/**
+            **/build/test-results/**
+            **/build/outputs/androidTest-results/**
+          if-no-files-found: warn

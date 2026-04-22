@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Masroufi</string>
+    <!-- Nav labels -->
+    <string name="nav_dashboard">Accueil</string>
+    <string name="nav_transactions">Transactions</string>
+    <string name="nav_budgets">Budgets</string>
+    <string name="nav_recurring">Charges</string>
+    <!-- Dashboard -->
+    <string name="reste_a_vivre">Reste à vivre</string>
+    <string name="total_revenus">Revenus du mois</string>
+    <string name="total_depenses">Dépenses du mois</string>
+    <string name="alerte_solde_negatif">⚠️ Solde négatif!</string>
+    <string name="alerte_budget_depasse">🔴 Budget dépassé</string>
+    <!-- Transactions -->
+    <string name="add_transaction">Ajouter une transaction</string>
+    <string name="edit_transaction">Modifier la transaction</string>
+    <string name="delete_transaction">Supprimer</string>
+    <string name="type_depense">Dépense</string>
+    <string name="type_revenu">Revenu</string>
+    <string name="champ_montant">Montant (DT)</string>
+    <string name="champ_categorie">Catégorie</string>
+    <string name="champ_date">Date</string>
+    <string name="champ_description">Description (optionnel)</string>
+    <string name="prendre_photo">Prendre une photo du ticket</string>
+    <string name="photo_attachee">📷 Photo attachée</string>
+    <string name="save">Enregistrer</string>
+    <string name="cancel">Annuler</string>
+    <!-- Budgets -->
+    <string name="budgets_title">Budgets par catégorie</string>
+    <string name="plafond">Plafond (DT)</string>
+    <string name="depense_actuelle">Dépenses actuel</string>
+    <!-- Recurring -->
+    <string name="recurring_title">Charges fixes</string>
+    <string name="charge_name">Nom de la charge</string>
+    <string name="jour_prelevement">Jour du prélèvement</string>
+    <string name="add_charge">Ajouter une charge fixe</string>
+</resources>
