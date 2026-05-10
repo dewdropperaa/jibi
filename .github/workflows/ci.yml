@@ -6,26 +6,27 @@ on:
   pull_request:
     branches: [main, develop]
 
+# Use Node 24 for JS-based actions (avoids Node 20 runner deprecation warnings).
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-and-test:
     name: Lint, Analyze, and Test
     runs-on: ubuntu-latest
 
     steps:
-      # Checks out the repository so the workflow can access source code.
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      # Sets up JDK 17 for Android/Gradle build tooling.
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
 
-      # Caches Gradle dependencies and wrapper for faster builds.
       - name: Cache Gradle dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
@@ -34,25 +35,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      # Ensures Gradle wrapper is executable on Linux runners.
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # Runs ktlint checks for Kotlin code style consistency.
       - name: Run ktlint
-        run: ./gradlew ktlintCheck
+        run: ./gradlew ktlintCheck --no-daemon
 
-      # Runs Detekt static analysis to catch code quality issues.
       - name: Run Detekt
-        run: ./gradlew detekt
+        run: ./gradlew detekt --no-daemon
 
-      # Runs local JVM unit tests (JUnit and related test suites).
       - name: Run unit tests
-        run: ./gradlew test
+        run: ./gradlew test --no-daemon
 
-      # Optionally runs instrumented Android tests via emulator.
-      # This step is skippable and won't fail the workflow if no emulator/tests are available.
+      # Emulator runs are slow and flaky on free runners; enable manually when needed.
       - name: Run instrumented tests (optional)
+        if: ${{ vars.RUN_ANDROID_INSTRUMENTED_TESTS == 'true' }}
         uses: ReactiveCircus/android-emulator-runner@v2
         continue-on-error: true
         with:
@@ -62,10 +59,9 @@ jobs:
           emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect
           script: ./gradlew connectedDebugAndroidTest
 
-      # Uploads all generated test and analysis reports as workflow artifacts.
       - name: Upload test and analysis reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ci-reports
           path: |
