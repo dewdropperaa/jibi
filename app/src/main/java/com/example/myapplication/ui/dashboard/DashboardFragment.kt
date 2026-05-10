@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.dashboard
+package com.jibi.ui.dashboard
 
 import android.graphics.Color
 import android.os.Bundle
@@ -15,9 +15,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.example.myapplication.MasroufiApplication
-import com.example.myapplication.R
-import com.example.myapplication.databinding.FragmentDashboardBinding
+import com.jibi.MasroufiApplication
+import com.jibi.R
+import com.jibi.databinding.FragmentDashboardBinding
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

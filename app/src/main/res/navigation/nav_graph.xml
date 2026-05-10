@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/dashboardFragment"
-        android:name="com.example.myapplication.ui.dashboard.DashboardFragment"
+        android:name="com.jibi.ui.dashboard.DashboardFragment"
         android:label="Accueil"
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
         android:id="@+id/transactionsListFragment"
-        android:name="com.example.myapplication.ui.transactions.TransactionsListFragment"
+        android:name="com.jibi.ui.transactions.TransactionsListFragment"
         android:label="Transactions"
         tools:layout="@layout/fragment_transactions_list">
         <action
@@ -23,7 +23,7 @@
 
     <fragment
         android:id="@+id/addTransactionFragment"
-        android:name="com.example.myapplication.ui.transactions.AddTransactionFragment"
+        android:name="com.jibi.ui.transactions.AddTransactionFragment"
         android:label="Ajouter / Modifier"
         tools:layout="@layout/fragment_add_transaction">
         <argument
@@ -35,13 +35,13 @@
 
     <fragment
         android:id="@+id/budgetsFragment"
-        android:name="com.example.myapplication.ui.budgets.BudgetsFragment"
+        android:name="com.jibi.ui.budgets.BudgetsFragment"
         android:label="Budgets"
         tools:layout="@layout/fragment_budgets" />
 
     <fragment
         android:id="@+id/recurringExpensesFragment"
-        android:name="com.example.myapplication.ui.recurring.RecurringExpensesFragment"
+        android:name="com.jibi.ui.recurring.RecurringExpensesFragment"
         android:label="Charges fixes"
         tools:layout="@layout/fragment_recurring_expenses" />
 

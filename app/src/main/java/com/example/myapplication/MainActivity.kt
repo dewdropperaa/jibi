@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.jibi
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -7,12 +7,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import com.example.myapplication.databinding.ActivityMainBinding
+import com.jibi.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityMainBinding
 
+    // Trivial change to trigger CI (ktlint, detekt, unit tests) on push/PR.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -24,8 +24,9 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager
+                .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
         binding.bottomNav.setupWithNavController(navController)
     }

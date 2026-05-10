@@ -1,10 +1,10 @@
-package com.example.myapplication
+package com.jibi
 
 import android.app.Application
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.myapplication.data.MasroufiDatabase
+import com.jibi.data.MasroufiDatabase
 
 class MasroufiApplication : Application() {
 

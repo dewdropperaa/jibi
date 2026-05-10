@@ -1,12 +1,12 @@
-package com.example.myapplication.ui.recurring
+package com.jibi.ui.recurring
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myapplication.data.entities.RecurringExpense
-import com.example.myapplication.databinding.ItemRecurringBinding
+import com.jibi.data.entities.RecurringExpense
+import com.jibi.databinding.ItemRecurringBinding
 
 class RecurringAdapter(
     private val onDelete: (RecurringExpense) -> Unit

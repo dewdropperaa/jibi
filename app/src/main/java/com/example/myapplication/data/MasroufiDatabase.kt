@@ -1,14 +1,14 @@
-package com.example.myapplication.data
+package com.jibi.data
 
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.example.myapplication.data.entities.Category
-import com.example.myapplication.data.entities.RecurringExpense
-import com.example.myapplication.data.entities.Transaction
-import com.example.myapplication.data.dao.CategoryDao
-import com.example.myapplication.data.dao.RecurringExpenseDao
-import com.example.myapplication.data.dao.TransactionDao
+import com.jibi.data.entities.Category
+import com.jibi.data.entities.RecurringExpense
+import com.jibi.data.entities.Transaction
+import com.jibi.data.dao.CategoryDao
+import com.jibi.data.dao.RecurringExpenseDao
+import com.jibi.data.dao.TransactionDao
 
 @Database(
     entities = [Transaction::class, Category::class, RecurringExpense::class],

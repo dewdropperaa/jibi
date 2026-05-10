@@ -1,9 +1,9 @@
-package com.example.myapplication.ui.dashboard
+package com.jibi.ui.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.myapplication.data.dao.CategoryDao
-import com.example.myapplication.data.dao.TransactionDao
+import com.jibi.data.dao.CategoryDao
+import com.jibi.data.dao.TransactionDao
 
 class DashboardViewModelFactory(
     private val transactionDao: TransactionDao,

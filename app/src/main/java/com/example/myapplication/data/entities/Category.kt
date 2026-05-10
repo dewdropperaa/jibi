@@ -1,4 +1,4 @@
-package com.example.myapplication.data.entities
+package com.jibi.data.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

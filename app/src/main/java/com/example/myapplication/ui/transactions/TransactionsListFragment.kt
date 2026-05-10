@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.transactions
+package com.jibi.ui.transactions
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,9 +12,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.myapplication.MasroufiApplication
-import com.example.myapplication.R
-import com.example.myapplication.databinding.FragmentTransactionsListBinding
+import com.jibi.MasroufiApplication
+import com.jibi.R
+import com.jibi.databinding.FragmentTransactionsListBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 

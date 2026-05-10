@@ -5,18 +5,20 @@ plugins {
     alias(libs.plugins.navigation.safe.args)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.example.myapplication"
+    namespace = "com.jibi"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.myapplication"
+        applicationId = "com.jibi"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = (findProperty("versionCode") as String?)?.toInt() ?: 1
+        // Bumped for class demo: proves a code change runs through GitHub Actions CI.
+        versionName = "1.0.1-demo"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -36,7 +38,7 @@ android {
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -53,6 +55,9 @@ android {
 }
 
 dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:34.12.0"))
+    implementation("com.google.firebase:firebase-analytics")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

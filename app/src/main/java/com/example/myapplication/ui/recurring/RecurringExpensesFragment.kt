@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.recurring
+package com.jibi.ui.recurring
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,14 +13,14 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.myapplication.MasroufiApplication
-import com.example.myapplication.R
-import com.example.myapplication.data.dao.RecurringExpenseDao
-import com.example.myapplication.data.dao.TransactionDao
-import com.example.myapplication.data.entities.RecurringExpense
-import com.example.myapplication.data.entities.Transaction
-import com.example.myapplication.data.entities.TransactionType
-import com.example.myapplication.databinding.FragmentRecurringExpensesBinding
+import com.jibi.MasroufiApplication
+import com.jibi.R
+import com.jibi.data.dao.RecurringExpenseDao
+import com.jibi.data.dao.TransactionDao
+import com.jibi.data.entities.RecurringExpense
+import com.jibi.data.entities.Transaction
+import com.jibi.data.entities.TransactionType
+import com.jibi.databinding.FragmentRecurringExpensesBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.flow.SharingStarted

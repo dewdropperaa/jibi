@@ -1,12 +1,12 @@
-package com.example.myapplication.ui.transactions
+package com.jibi.ui.transactions
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.data.dao.CategoryDao
-import com.example.myapplication.data.dao.TransactionDao
-import com.example.myapplication.data.entities.Category
-import com.example.myapplication.data.entities.Transaction
+import com.jibi.data.dao.CategoryDao
+import com.jibi.data.dao.TransactionDao
+import com.jibi.data.entities.Category
+import com.jibi.data.entities.Transaction
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn

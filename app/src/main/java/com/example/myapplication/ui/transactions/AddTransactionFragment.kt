@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.transactions
+package com.jibi.ui.transactions
 
 import android.app.DatePickerDialog
 import android.net.Uri
@@ -13,12 +13,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.example.myapplication.MasroufiApplication
-import com.example.myapplication.R
-import com.example.myapplication.data.entities.Category
-import com.example.myapplication.data.entities.Transaction
-import com.example.myapplication.data.entities.TransactionType
-import com.example.myapplication.databinding.FragmentAddTransactionBinding
+import com.jibi.MasroufiApplication
+import com.jibi.R
+import com.jibi.data.entities.Category
+import com.jibi.data.entities.Transaction
+import com.jibi.data.entities.TransactionType
+import com.jibi.databinding.FragmentAddTransactionBinding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.io.File

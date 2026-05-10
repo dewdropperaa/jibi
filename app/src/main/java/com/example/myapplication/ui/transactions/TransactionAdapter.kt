@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.transactions
+package com.jibi.ui.transactions
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -6,10 +6,10 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myapplication.R
-import com.example.myapplication.data.entities.Transaction
-import com.example.myapplication.data.entities.TransactionType
-import com.example.myapplication.databinding.ItemTransactionBinding
+import com.jibi.R
+import com.jibi.data.entities.Transaction
+import com.jibi.data.entities.TransactionType
+import com.jibi.databinding.ItemTransactionBinding
 
 class TransactionAdapter(
     private val onEdit: (Transaction) -> Unit,

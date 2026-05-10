@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.budgets
+package com.jibi.ui.budgets
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,11 +11,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.myapplication.MasroufiApplication
-import com.example.myapplication.R
-import com.example.myapplication.databinding.FragmentBudgetsBinding
-import com.example.myapplication.ui.transactions.TransactionsViewModelFactory
-import com.example.myapplication.ui.transactions.TransactionsViewModel
+import com.jibi.MasroufiApplication
+import com.jibi.R
+import com.jibi.databinding.FragmentBudgetsBinding
+import com.jibi.ui.transactions.TransactionsViewModelFactory
+import com.jibi.ui.transactions.TransactionsViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -53,14 +53,14 @@ class BudgetsFragment : Fragment() {
     }
 
     private fun renderBudgets(
-        categories: List<com.example.myapplication.data.entities.Category>,
-        transactions: List<com.example.myapplication.data.entities.Transaction>
+        categories: List<com.jibi.data.entities.Category>,
+        transactions: List<com.jibi.data.entities.Transaction>
     ) {
         binding.layoutBudgetList.removeAllViews()
         categories.filter { it.budgetLimit != null || true }.forEach { cat ->
             val card = layoutInflater.inflate(R.layout.item_budget_card, binding.layoutBudgetList, false)
             val spent = transactions.filter {
-                it.categoryId == cat.id && it.type == com.example.myapplication.data.entities.TransactionType.EXPENSE
+                it.categoryId == cat.id && it.type == com.jibi.data.entities.TransactionType.EXPENSE
             }.sumOf { it.amount }
 
             card.findViewById<TextView>(R.id.tvBudgetCardCategory).text = "${cat.name}"
@@ -78,7 +78,7 @@ class BudgetsFragment : Fragment() {
         }
     }
 
-    private fun showSetBudgetDialog(cat: com.example.myapplication.data.entities.Category) {
+    private fun showSetBudgetDialog(cat: com.jibi.data.entities.Category) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_set_budget, null)
         val etLimit = dialogView.findViewById<TextInputEditText>(R.id.etBudgetLimit)
         etLimit.setText(cat.budgetLimit?.toString() ?: "")
