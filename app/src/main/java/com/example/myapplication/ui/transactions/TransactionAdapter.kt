@@ -13,25 +13,38 @@ import com.jibi.databinding.ItemTransactionBinding
 
 class TransactionAdapter(
     private val onEdit: (Transaction) -> Unit,
-    private val onDelete: (Transaction) -> Unit
+    private val onDelete: (Transaction) -> Unit,
 ) : ListAdapter<Transaction, TransactionAdapter.ViewHolder>(DIFF) {
-
     companion object {
-        private val DIFF = object : DiffUtil.ItemCallback<Transaction>() {
-            override fun areItemsTheSame(a: Transaction, b: Transaction) = a.id == b.id
-            override fun areContentsTheSame(a: Transaction, b: Transaction) = a == b
-        }
+        private val DIFF =
+            object : DiffUtil.ItemCallback<Transaction>() {
+                override fun areItemsTheSame(
+                    a: Transaction,
+                    b: Transaction,
+                ) = a.id == b.id
+
+                override fun areContentsTheSame(
+                    a: Transaction,
+                    b: Transaction,
+                ) = a == b
+            }
     }
 
     inner class ViewHolder(val binding: ItemTransactionBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ViewHolder {
         val binding = ItemTransactionBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int,
+    ) {
         val tx = getItem(position)
         with(holder.binding) {
             tvTransactionCategory.text = tx.categoryId

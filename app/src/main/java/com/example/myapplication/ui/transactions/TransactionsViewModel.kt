@@ -14,37 +14,42 @@ import kotlinx.coroutines.launch
 
 class TransactionsViewModel(
     val transactionDao: TransactionDao,
-    val categoryDao: CategoryDao
+    val categoryDao: CategoryDao,
 ) : ViewModel() {
+    val transactions: StateFlow<List<Transaction>> =
+        transactionDao.getAllTransactions()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val transactions: StateFlow<List<Transaction>> = transactionDao.getAllTransactions()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val categories: StateFlow<List<Category>> =
+        categoryDao.getAllCategories()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val categories: StateFlow<List<Category>> = categoryDao.getAllCategories()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    fun delete(transaction: Transaction) =
+        viewModelScope.launch {
+            transactionDao.deleteTransaction(transaction.id)
+        }
 
-    fun delete(transaction: Transaction) = viewModelScope.launch {
-        transactionDao.deleteTransaction(transaction.id)
-    }
+    fun insert(transaction: Transaction) =
+        viewModelScope.launch {
+            transactionDao.insertTransaction(transaction)
+        }
 
-    fun insert(transaction: Transaction) = viewModelScope.launch {
-        transactionDao.insertTransaction(transaction)
-    }
+    fun update(transaction: Transaction) =
+        viewModelScope.launch {
+            transactionDao.updateTransaction(transaction)
+        }
 
-    fun update(transaction: Transaction) = viewModelScope.launch {
-        transactionDao.updateTransaction(transaction)
-    }
-
-    fun insertCategory(category: Category) = viewModelScope.launch {
-        categoryDao.insertCategory(category)
-    }
+    fun insertCategory(category: Category) =
+        viewModelScope.launch {
+            categoryDao.insertCategory(category)
+        }
 
     suspend fun getById(id: String): Transaction? = transactionDao.getTransactionById(id)
 }
 
 class TransactionsViewModelFactory(
     private val transactionDao: TransactionDao,
-    private val categoryDao: CategoryDao
+    private val categoryDao: CategoryDao,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TransactionsViewModel::class.java)) {

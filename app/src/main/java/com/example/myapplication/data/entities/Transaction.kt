@@ -4,7 +4,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 enum class TransactionType {
-    EXPENSE, INCOME
+    EXPENSE,
+    INCOME,
 }
 
 @Entity(tableName = "transactions")
@@ -16,5 +17,5 @@ data class Transaction(
     val date: String,
     val note: String? = null,
     val type: TransactionType,
-    val receiptPhotoPath: String? = null
+    val receiptPhotoPath: String? = null,
 )

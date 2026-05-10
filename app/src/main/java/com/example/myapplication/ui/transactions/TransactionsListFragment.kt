@@ -12,14 +12,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jibi.MasroufiApplication
 import com.jibi.R
 import com.jibi.databinding.FragmentTransactionsListBinding
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
 class TransactionsListFragment : Fragment() {
-
     private var _binding: FragmentTransactionsListBinding? = null
     private val binding get() = _binding!!
 
@@ -28,28 +27,36 @@ class TransactionsListFragment : Fragment() {
         TransactionsViewModelFactory(app.database.transactionDao(), app.database.categoryDao())
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
         _binding = FragmentTransactionsListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = TransactionAdapter(
-            onEdit = { tx ->
-                val bundle = bundleOf("transactionId" to tx.id)
-                findNavController().navigate(R.id.addTransactionFragment, bundle)
-            },
-            onDelete = { tx ->
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Supprimer")
-                    .setMessage("Confirmer la suppression de cette transaction ?")
-                    .setNegativeButton("Annuler", null)
-                    .setPositiveButton("Supprimer") { _, _ -> viewModel.delete(tx) }
-                    .show()
-            }
-        )
+        val adapter =
+            TransactionAdapter(
+                onEdit = { tx ->
+                    val bundle = bundleOf("transactionId" to tx.id)
+                    findNavController().navigate(R.id.addTransactionFragment, bundle)
+                },
+                onDelete = { tx ->
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("Supprimer")
+                        .setMessage("Confirmer la suppression de cette transaction ?")
+                        .setNegativeButton("Annuler", null)
+                        .setPositiveButton("Supprimer") { _, _ -> viewModel.delete(tx) }
+                        .show()
+                },
+            )
 
         binding.rvTransactions.layoutManager = LinearLayoutManager(requireContext())
         binding.rvTransactions.adapter = adapter

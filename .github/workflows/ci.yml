@@ -59,6 +59,14 @@ jobs:
           emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect
           script: ./gradlew connectedDebugAndroidTest
 
+      # When ktlint fails, Detekt never runs — so app/build/reports/detekt/ will not exist.
+      # This listing appears in the job log when any previous step failed (easier than guessing paths).
+      - name: List Gradle reports (on failure)
+        if: failure()
+        run: |
+          echo "Report files under build/ (if any):"
+          find . -type f \( -path "./app/build/reports/*" -o -path "./build/reports/*" \) 2>/dev/null | sort || true
+
       - name: Upload test and analysis reports
         if: always()
         uses: actions/upload-artifact@v7

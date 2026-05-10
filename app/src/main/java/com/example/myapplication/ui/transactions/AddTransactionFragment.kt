@@ -13,13 +13,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import com.jibi.MasroufiApplication
 import com.jibi.R
 import com.jibi.data.entities.Category
 import com.jibi.data.entities.Transaction
 import com.jibi.data.entities.TransactionType
 import com.jibi.databinding.FragmentAddTransactionBinding
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.io.File
 import java.time.LocalDate
@@ -28,7 +28,6 @@ import java.util.Calendar
 import java.util.UUID
 
 class AddTransactionFragment : Fragment() {
-
     private var _binding: FragmentAddTransactionBinding? = null
     private val binding get() = _binding!!
 
@@ -42,19 +41,27 @@ class AddTransactionFragment : Fragment() {
     private var editingTransactionId: String? = null
     private var categoriesList: List<Category> = emptyList()
 
-    private val takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success) {
-            binding.tvPhotoStatus.visibility = View.VISIBLE
-            binding.tvPhotoStatus.text = getString(R.string.photo_attachee)
+    private val takePicture =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success) {
+                binding.tvPhotoStatus.visibility = View.VISIBLE
+                binding.tvPhotoStatus.text = getString(R.string.photo_attachee)
+            }
         }
-    }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
         _binding = FragmentAddTransactionBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
 
         editingTransactionId = arguments?.getString("transactionId")
@@ -104,11 +111,12 @@ class AddTransactionFragment : Fragment() {
         val dir = File(requireContext().cacheDir, "photos").apply { mkdirs() }
         val file = File(dir, "receipt_${System.currentTimeMillis()}.jpg")
         photoPath = file.absolutePath
-        photoUri = FileProvider.getUriForFile(
-            requireContext(),
-            "${requireContext().packageName}.provider",
-            file
-        )
+        photoUri =
+            FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.provider",
+                file,
+            )
         takePicture.launch(photoUri)
     }
 
@@ -118,8 +126,11 @@ class AddTransactionFragment : Fragment() {
         binding.etDescription.setText(tx.note ?: "")
         val catName = categoriesList.find { it.id == tx.categoryId }?.name ?: tx.categoryId
         binding.actvCategorie.setText(catName, false)
-        if (tx.type == TransactionType.INCOME) binding.toggleTransactionType.check(R.id.btnIncome)
-        else binding.toggleTransactionType.check(R.id.btnExpense)
+        if (tx.type == TransactionType.INCOME) {
+            binding.toggleTransactionType.check(R.id.btnIncome)
+        } else {
+            binding.toggleTransactionType.check(R.id.btnExpense)
+        }
         if (tx.receiptPhotoPath != null) {
             photoPath = tx.receiptPhotoPath
             binding.tvPhotoStatus.visibility = View.VISIBLE
@@ -134,44 +145,58 @@ class AddTransactionFragment : Fragment() {
         val note = binding.etDescription.text?.toString()?.trim()
 
         if (amountStr.isNullOrEmpty()) {
-            binding.tilMontant.error = "Montant requis"; return
+            binding.tilMontant.error = "Montant requis"
+            return
         }
         if (date.isNullOrEmpty()) {
-            binding.tilDate.error = "Date requise"; return
+            binding.tilDate.error = "Date requise"
+            return
         }
         if (catName.isNullOrEmpty()) {
-            binding.tilCategorie.error = "Catégorie requise"; return
+            binding.tilCategorie.error = "Catégorie requise"
+            return
         }
 
         binding.tilMontant.error = null
         binding.tilDate.error = null
         binding.tilCategorie.error = null
 
-        val amount = amountStr.toDoubleOrNull() ?: run {
-            binding.tilMontant.error = "Montant invalide"; return
-        }
-        val type = if (binding.toggleTransactionType.checkedButtonId == R.id.btnIncome)
-            TransactionType.INCOME else TransactionType.EXPENSE
+        val amount =
+            amountStr.toDoubleOrNull() ?: run {
+                binding.tilMontant.error = "Montant invalide"
+                return
+            }
+        val type =
+            if (binding.toggleTransactionType.checkedButtonId == R.id.btnIncome) {
+                TransactionType.INCOME
+            } else {
+                TransactionType.EXPENSE
+            }
 
         // Find or create category
-        val category = categoriesList.find { it.name.equals(catName, ignoreCase = true) }
-            ?: Category(id = UUID.randomUUID().toString(), name = catName, icon = "📋", color = "#7C4DFF")
+        val category =
+            categoriesList.find { it.name.equals(catName, ignoreCase = true) }
+                ?: Category(id = UUID.randomUUID().toString(), name = catName, icon = "📋", color = "#7C4DFF")
 
         viewLifecycleOwner.lifecycleScope.launch {
             if (category.id !in categoriesList.map { it.id }) {
                 viewModel.insertCategory(category)
             }
-            val transaction = Transaction(
-                id = editingTransactionId ?: UUID.randomUUID().toString(),
-                amount = amount,
-                categoryId = category.id,
-                date = date,
-                note = note?.ifEmpty { null },
-                type = type,
-                receiptPhotoPath = photoPath
-            )
-            if (editingTransactionId != null) viewModel.update(transaction)
-            else viewModel.insert(transaction)
+            val transaction =
+                Transaction(
+                    id = editingTransactionId ?: UUID.randomUUID().toString(),
+                    amount = amount,
+                    categoryId = category.id,
+                    date = date,
+                    note = note?.ifEmpty { null },
+                    type = type,
+                    receiptPhotoPath = photoPath,
+                )
+            if (editingTransactionId != null) {
+                viewModel.update(transaction)
+            } else {
+                viewModel.insert(transaction)
+            }
 
             Snackbar.make(binding.root, "Transaction enregistrée ✓", Snackbar.LENGTH_SHORT).show()
             findNavController().navigateUp()

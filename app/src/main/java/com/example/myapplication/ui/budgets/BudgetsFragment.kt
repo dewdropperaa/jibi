@@ -11,18 +11,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
 import com.jibi.MasroufiApplication
 import com.jibi.R
 import com.jibi.databinding.FragmentBudgetsBinding
-import com.jibi.ui.transactions.TransactionsViewModelFactory
 import com.jibi.ui.transactions.TransactionsViewModel
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import com.jibi.ui.transactions.TransactionsViewModelFactory
 import kotlinx.coroutines.launch
 
 class BudgetsFragment : Fragment() {
-
     private var _binding: FragmentBudgetsBinding? = null
     private val binding get() = _binding!!
 
@@ -31,12 +29,19 @@ class BudgetsFragment : Fragment() {
         TransactionsViewModelFactory(app.database.transactionDao(), app.database.categoryDao())
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
         _binding = FragmentBudgetsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -54,14 +59,15 @@ class BudgetsFragment : Fragment() {
 
     private fun renderBudgets(
         categories: List<com.jibi.data.entities.Category>,
-        transactions: List<com.jibi.data.entities.Transaction>
+        transactions: List<com.jibi.data.entities.Transaction>,
     ) {
         binding.layoutBudgetList.removeAllViews()
         categories.filter { it.budgetLimit != null || true }.forEach { cat ->
             val card = layoutInflater.inflate(R.layout.item_budget_card, binding.layoutBudgetList, false)
-            val spent = transactions.filter {
-                it.categoryId == cat.id && it.type == com.jibi.data.entities.TransactionType.EXPENSE
-            }.sumOf { it.amount }
+            val spent =
+                transactions.filter {
+                    it.categoryId == cat.id && it.type == com.jibi.data.entities.TransactionType.EXPENSE
+                }.sumOf { it.amount }
 
             card.findViewById<TextView>(R.id.tvBudgetCardCategory).text = "${cat.name}"
             val limit = cat.budgetLimit ?: 0.0

@@ -11,5 +11,5 @@ data class Category(
     val icon: String,
     val color: String,
     val isCustom: Boolean = false,
-    val budgetLimit: Double? = null
+    val budgetLimit: Double? = null,
 )

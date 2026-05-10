@@ -11,5 +11,5 @@ data class RecurringExpense(
     val amount: Double,
     val categoryId: String,
     val dayOfMonth: Int,
-    val lastAppliedDate: String? = null
+    val lastAppliedDate: String? = null,
 )

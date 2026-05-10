@@ -55,13 +55,9 @@ jobs:
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
         run: ./gradlew assembleRelease --no-daemon
 
-      # Captures latest commit message to use as Firebase release notes.
-      - name: Extract release notes from latest commit
-        id: release_notes
-        run: |
-          echo "message<<EOF" >> "$GITHUB_OUTPUT"
-          git log -1 --pretty=%B >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
+      # Plain file avoids shell/YAML breakage when the commit body has quotes or multiple lines.
+      - name: Write Firebase release notes
+        run: git log -1 --pretty=%B > release-notes.txt
 
       # secrets cannot be used in step `if:`; gate inside the script instead.
       - name: Distribute to Firebase App Distribution (optional)
@@ -77,7 +73,7 @@ jobs:
           firebase appdistribution:distribute app/build/outputs/apk/release/app-release.apk \
             --app "$FIREBASE_APP_ID" \
             --groups "internal-team" \
-            --release-notes "${{ steps.release_notes.outputs.message }}" \
+            --release-notes-file release-notes.txt \
             --token "$FIREBASE_TOKEN"
 
       # Uploads the release APK as a backup artifact in GitHub Actions.

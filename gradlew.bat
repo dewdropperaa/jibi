@@ -35,6 +35,20 @@ set APP_HOME=%DIRNAME%
 @rem Resolve any "." and ".." in APP_HOME to make it shorter.
 for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
 
+@rem Android Gradle Plugin needs jlink (full JDK). Some IDEs set JAVA_HOME to a JRE without bin\jlink.exe.
+if defined JAVA_HOME if not exist "%JAVA_HOME%\bin\jlink.exe" (
+  if exist "%ProgramFiles%\Android\Android Studio\jbr\bin\jlink.exe" (
+    set "JAVA_HOME=%ProgramFiles%\Android\Android Studio\jbr"
+  )
+)
+if defined JAVA_HOME if not exist "%JAVA_HOME%\bin\jlink.exe" (
+  for /f "delims=" %%J in ('dir /b /ad /o-n "%ProgramFiles%\Eclipse Adoptium\jdk-*" 2^>nul') do (
+    set "JAVA_HOME=%ProgramFiles%\Eclipse Adoptium\%%J"
+    goto gradle_jlink_fixup_done
+  )
+)
+:gradle_jlink_fixup_done
+
 @rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
 

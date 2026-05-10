@@ -7,12 +7,14 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
 import com.jibi.MasroufiApplication
 import com.jibi.R
 import com.jibi.data.dao.RecurringExpenseDao
@@ -21,8 +23,6 @@ import com.jibi.data.entities.RecurringExpense
 import com.jibi.data.entities.Transaction
 import com.jibi.data.entities.TransactionType
 import com.jibi.databinding.FragmentRecurringExpensesBinding
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -34,20 +34,22 @@ import java.util.UUID
 // ViewModel
 class RecurringViewModel(
     private val recurringDao: RecurringExpenseDao,
-    private val transactionDao: TransactionDao
+    private val transactionDao: TransactionDao,
 ) : ViewModel() {
+    val recurringExpenses: StateFlow<List<RecurringExpense>> =
+        recurringDao.getAllRecurringExpenses()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val recurringExpenses: StateFlow<List<RecurringExpense>> = recurringDao.getAllRecurringExpenses()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    fun insert(expense: RecurringExpense) =
+        viewModelScope.launch {
+            recurringDao.insertRecurringExpense(expense)
+            applyIfDue(expense)
+        }
 
-    fun insert(expense: RecurringExpense) = viewModelScope.launch {
-        recurringDao.insertRecurringExpense(expense)
-        applyIfDue(expense)
-    }
-
-    fun delete(expense: RecurringExpense) = viewModelScope.launch {
-        recurringDao.deleteRecurringExpense(expense.id)
-    }
+    fun delete(expense: RecurringExpense) =
+        viewModelScope.launch {
+            recurringDao.deleteRecurringExpense(expense.id)
+        }
 
     private suspend fun applyIfDue(expense: RecurringExpense) {
         val today = LocalDate.now()
@@ -61,8 +63,8 @@ class RecurringViewModel(
                     categoryId = expense.categoryId,
                     date = todayStr,
                     note = "Auto: ${expense.name}",
-                    type = TransactionType.EXPENSE
-                )
+                    type = TransactionType.EXPENSE,
+                ),
             )
             recurringDao.updateRecurringExpense(expense.copy(lastAppliedDate = todayStr))
         }
@@ -71,7 +73,7 @@ class RecurringViewModel(
 
 class RecurringViewModelFactory(
     private val recurringDao: RecurringExpenseDao,
-    private val transactionDao: TransactionDao
+    private val transactionDao: TransactionDao,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
@@ -81,7 +83,6 @@ class RecurringViewModelFactory(
 
 // Fragment
 class RecurringExpensesFragment : Fragment() {
-
     private var _binding: FragmentRecurringExpensesBinding? = null
     private val binding get() = _binding!!
 
@@ -90,12 +91,19 @@ class RecurringExpensesFragment : Fragment() {
         RecurringViewModelFactory(app.database.recurringExpenseDao(), app.database.transactionDao())
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
         _binding = FragmentRecurringExpensesBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
 
         val adapter = RecurringAdapter { expense -> viewModel.delete(expense) }
@@ -136,8 +144,8 @@ class RecurringExpensesFragment : Fragment() {
                             name = name,
                             amount = amount,
                             categoryId = cat,
-                            dayOfMonth = day.coerceIn(1, 31)
-                        )
+                            dayOfMonth = day.coerceIn(1, 31),
+                        ),
                     )
                 }
             }

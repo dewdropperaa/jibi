@@ -1,11 +1,9 @@
 package com.jibi.ui.dashboard
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -24,7 +22,6 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class DashboardFragment : Fragment() {
-
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
 
@@ -33,12 +30,19 @@ class DashboardFragment : Fragment() {
         DashboardViewModelFactory(app.database.transactionDao(), app.database.categoryDao())
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
 
         val monthLabel = LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRENCH))
@@ -56,8 +60,11 @@ class DashboardFragment : Fragment() {
                     binding.tvTotalExpenses.text = String.format("%.2f DT", state.totalExpenses)
 
                     binding.tvBalance.setTextColor(
-                        if (state.isNegative) ContextCompat.getColor(requireContext(), R.color.md_expense_red)
-                        else ContextCompat.getColor(requireContext(), R.color.md_primary)
+                        if (state.isNegative) {
+                            ContextCompat.getColor(requireContext(), R.color.md_expense_red)
+                        } else {
+                            ContextCompat.getColor(requireContext(), R.color.md_primary)
+                        },
                     )
 
                     if (state.isNegative) {
