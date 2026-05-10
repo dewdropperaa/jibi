@@ -63,16 +63,17 @@ jobs:
           git log -1 --pretty=%B >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
-      - name: Install Firebase CLI
-        if: ${{ secrets.FIREBASE_TOKEN != '' && secrets.FIREBASE_APP_ID != '' }}
-        run: npm install -g firebase-tools
-
-      - name: Distribute APK to Firebase App Distribution
-        if: ${{ secrets.FIREBASE_TOKEN != '' && secrets.FIREBASE_APP_ID != '' }}
+      # secrets cannot be used in step `if:`; gate inside the script instead.
+      - name: Distribute to Firebase App Distribution (optional)
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
         run: |
+          if [ -z "${FIREBASE_TOKEN:-}" ] || [ -z "${FIREBASE_APP_ID:-}" ]; then
+            echo "Skipping Firebase App Distribution (secrets not set)."
+            exit 0
+          fi
+          npm install -g firebase-tools
           firebase appdistribution:distribute app/build/outputs/apk/release/app-release.apk \
             --app "$FIREBASE_APP_ID" \
             --groups "internal-team" \
@@ -87,17 +88,15 @@ jobs:
           path: app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
 
-      - name: Set up Supabase CLI
-        if: ${{ secrets.SUPABASE_ACCESS_TOKEN != '' && secrets.SUPABASE_PROJECT_ID != '' }}
-        uses: supabase/setup-cli@v1
-        with:
-          version: latest
-
-      - name: Run Supabase production migrations
-        if: ${{ secrets.SUPABASE_ACCESS_TOKEN != '' && secrets.SUPABASE_PROJECT_ID != '' }}
+      - name: Run Supabase production migrations (optional)
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
         run: |
+          if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ] || [ -z "${SUPABASE_PROJECT_ID:-}" ]; then
+            echo "Skipping Supabase (secrets not set)."
+            exit 0
+          fi
+          npm install -g supabase
           supabase link --project-ref "$SUPABASE_PROJECT_ID"
           supabase db push
