@@ -1,0 +1,32 @@
+apiVersion: v2
+name: jenkins
+description: Jenkins CI/CD server for Android CI/CD pipeline with hardened security posture
+type: application
+version: 1.0.0
+appVersion: "2.452.2"
+kubeVersion: ">= 1.25.0-0"
+home: https://www.jenkins.io/
+sources:
+  - https://github.com/jenkinsci/jenkins
+maintainers:
+  - name: DevOps Team
+    email: devops@example.com
+keywords:
+  - jenkins
+  - ci-cd
+  - android
+  - pipeline
+annotations:
+  artifacthub.io/images: |
+    - name: jenkins
+      image: jenkins/jenkins:lts-jdk17-alpine
+    - name: jenkins-agent
+      image: registry.example.com/android-ci-agent
+  artifacthub.io/changes: |
+    - kind: added
+      description: Initial release with production-hardened configuration
+  artifacthub.io/securityReport: |
+    Pod security standards: restricted
+    Non-root execution: enforced
+    Seccomp profile: RuntimeDefault
+    Capabilities: drop ALL

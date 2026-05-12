@@ -1,0 +1,24 @@
+# ============================================================================
+# Jenkins PersistentVolumeClaim
+# ============================================================================
+# Provisions 10Gi of persistent storage for /var/jenkins_home.
+# This ensures Jenkins configuration, jobs, plugins, and build history
+# survive pod restarts and redeployments.
+#
+# AUDIT FIX #8: PVC now uses encrypted storage class (jenkins-encrypted-gp3)
+# with encryption at rest via AWS KMS.
+# ============================================================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jenkins-home-pvc
+  namespace: jenkins
+  labels:
+    app: jenkins
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: jenkins-encrypted-gp3
+  resources:
+    requests:
+      storage: 10Gi

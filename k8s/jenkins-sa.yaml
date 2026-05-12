@@ -1,0 +1,63 @@
+# ============================================================================
+# Jenkins ServiceAccount + RBAC (Namespace-Scoped)
+# ============================================================================
+# AUDIT FIX #4: CRITICAL — Replaced ClusterRole + ClusterRoleBinding with
+# namespace-scoped Role + RoleBinding in the jenkins namespace only.
+# The Role grants ONLY: pods (get, list, watch, create, delete),
+# pods/log (get), pods/exec (create).
+# Removed ALL cluster-wide permissions including secrets access.
+# ============================================================================
+
+---
+# 1. ServiceAccount for the Jenkins controller
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins
+  namespace: jenkins
+  labels:
+    app: jenkins
+
+---
+# 2. AUDIT FIX #4: Namespace-scoped Role (was ClusterRole)
+# Grants minimal permissions required by the Kubernetes plugin to
+# dynamically create, monitor, and delete agent pods.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: jenkins-agent-role
+  namespace: jenkins
+  labels:
+    app: jenkins
+rules:
+  # Core pod operations — required by Kubernetes plugin to launch agents
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  # Read pod logs — used by Jenkins to stream build output
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+  # Exec into pods — used by Jenkins to run commands in agent containers
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]
+
+---
+# 3. AUDIT FIX #4: Namespace-scoped RoleBinding (was ClusterRoleBinding)
+# Binds the Role to the Jenkins ServiceAccount in the jenkins namespace only.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jenkins-agent-role-binding
+  namespace: jenkins
+  labels:
+    app: jenkins
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: jenkins-agent-role
+subjects:
+  - kind: ServiceAccount
+    name: jenkins
+    namespace: jenkins

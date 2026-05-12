@@ -1,0 +1,224 @@
+# ============================================================================
+# Jenkins Backup CronJob
+# ============================================================================
+# Kubernetes CronJob that runs the Jenkins backup script daily at 2:00 AM UTC.
+#
+# Schedule: "0 2 * * *" (daily at 2 AM UTC)
+# Equivalent cron expression comment: # Run daily at 2AM: 0 2 * * *
+#
+# Environment Variables (set via kubectl or Helm values):
+#   BACKUP_DESTINATION  — Destination prefix: s3://, gs://, or az://
+#   GPG_KEY_ID          — GPG key ID for encryption
+#   SLACK_WEBHOOK_URL   — Slack webhook URL for notifications
+#
+# Deploy:
+#   kubectl apply -f k8s/jenkins-backup-cronjob.yaml
+#
+# Monitor:
+#   kubectl get cronjob jenkins-backup -n jenkins
+#   kubectl get jobs -n jenkins -l app=jenkins-backup
+#   kubectl logs -n jenkins job/<job-name>
+#
+# Manual trigger:
+#   kubectl create job manual-backup --from=cronjob/jenkins-backup -n jenkins
+# ============================================================================
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: jenkins-backup
+  namespace: jenkins
+  labels:
+    app: jenkins-backup
+    purpose: backup
+    managed-by: kubectl
+  annotations:
+    description: "Daily automated backup of Jenkins PVC to cloud storage"
+    backup.schedule: "0 2 * * *"
+    backup.destination: "configurable via BACKUP_DESTINATION env var"
+spec:
+  # Run daily at 2:00 AM UTC
+  schedule: "0 2 * * *"
+  timeZone: "Etc/UTC"
+
+  # Concurrency policy: skip if previous backup is still running
+  concurrencyPolicy: Forbid
+
+  # Do not suspend the CronJob
+  suspend: false
+
+  # Job history retention
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+
+  # Job template
+  jobTemplate:
+    spec:
+      # Timeout: allow up to 2 hours for backup (large PVCs may take time)
+      activeDeadlineSeconds: 7200
+
+      # Backoff limit: retry up to 2 times on failure
+      backoffLimit: 2
+
+      template:
+        metadata:
+          labels:
+            app: jenkins-backup
+            purpose: backup
+        spec:
+          # Use the jenkins ServiceAccount (has kubectl access via RBAC)
+          serviceAccountName: jenkins
+          automountServiceAccountToken: true
+
+          # Restart policy: never (CronJob handles retries)
+          restartPolicy: Never
+
+          # Pod-level security context
+          securityContext:
+            runAsUser: 1000
+            runAsNonRoot: true
+            fsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+
+          containers:
+            - name: backup
+              image: bitnami/kubectl:1.30
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  # Install required tools
+                  apt-get update -qq && apt-get install -y -qq curl gpg tar gzip jq > /dev/null 2>&1
+
+                  # Download the backup script from the Jenkins repository
+                  # Option 1: Clone the repo
+                  git clone --depth 1 https://github.com/your-org/myapp.git /tmp/myapp 2>/dev/null || true
+
+                  # Option 2: Download script directly (preferred for CronJob)
+                  if [ -f /scripts/backup_jenkins.sh ]; then
+                    cp /scripts/backup_jenkins.sh /tmp/backup_jenkins.sh
+                  elif [ -f /tmp/myapp/scripts/backup_jenkins.sh ]; then
+                    cp /tmp/myapp/scripts/backup_jenkins.sh /tmp/backup_jenkins.sh
+                  else
+                    echo "ERROR: Backup script not found"
+                    exit 1
+                  fi
+
+                  chmod +x /tmp/backup_jenkins.sh
+
+                  # Run the backup script
+                  /tmp/backup_jenkins.sh
+
+              # Environment variables — configure via Secret or ConfigMap
+              env:
+                - name: JENKINS_NAMESPACE
+                  value: "jenkins"
+                - name: PVC_NAME
+                  value: "jenkins-home-pvc"
+                - name: BACKUP_DESTINATION
+                  valueFrom:
+                    configMapKeyRef:
+                      name: jenkins-backup-config
+                      key: backup_destination
+                      optional: true
+                - name: GPG_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: jenkins-backup-secrets
+                      key: gpg-key-id
+                      optional: true
+                - name: SLACK_WEBHOOK_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: jenkins-backup-secrets
+                      key: slack-webhook-url
+                      optional: true
+
+              resources:
+                requests:
+                  cpu: "500m"
+                  memory: "512Mi"
+                limits:
+                  cpu: "1"
+                  memory: "1Gi"
+
+              # Mount the backup script via ConfigMap (preferred over git clone)
+              volumeMounts:
+                - name: backup-scripts
+                  mountPath: /scripts
+                  readOnly: true
+
+          volumes:
+            - name: backup-scripts
+              configMap:
+                name: jenkins-backup-scripts
+                defaultMode: 0755
+
+---
+# ============================================================================
+# ConfigMap: Backup Script
+# ============================================================================
+# This ConfigMap holds the backup script so the CronJob pod can execute it.
+# Update this ConfigMap when the backup script changes:
+#   kubectl create configmap jenkins-backup-scripts \
+#     --from-file=backup_jenkins.sh=scripts/backup_jenkins.sh \
+#     -n jenkins --dry-run=client -o yaml | kubectl apply -f -
+# ============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-backup-scripts
+  namespace: jenkins
+  labels:
+    app: jenkins-backup
+    purpose: backup
+data:
+  backup_jenkins.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    echo "Backup script placeholder. Replace with actual script content."
+    echo "Create ConfigMap with: kubectl create configmap jenkins-backup-scripts --from-file=backup_jenkins.sh=scripts/backup_jenkins.sh -n jenkins"
+    exit 0
+
+---
+# ============================================================================
+# ConfigMap: Backup Configuration
+# ============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-backup-config
+  namespace: jenkins
+  labels:
+    app: jenkins-backup
+    purpose: backup
+data:
+  backup_destination: "s3://my-backups/jenkins"
+
+---
+# ============================================================================
+# Secret: Backup Secrets
+# ============================================================================
+# Create this secret with:
+#   kubectl create secret generic jenkins-backup-secrets \
+#     --from-literal=gpg-key-id=YOUR_GPG_KEY_ID \
+#     --from-literal=slack-webhook-url=YOUR_SLACK_WEBHOOK_URL \
+#     -n jenkins
+# ============================================================================
+apiVersion: v1
+kind: Secret
+metadata:
+  name: jenkins-backup-secrets
+  namespace: jenkins
+  labels:
+    app: jenkins-backup
+    purpose: backup
+type: Opaque
+stringData:
+  gpg-key-id: ""
+  slack-webhook-url: ""

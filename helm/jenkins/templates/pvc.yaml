@@ -1,0 +1,56 @@
+{{- if .Values.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "jenkins.fullname" . }}-home
+  labels:
+    {{- include "jenkins.labels" . | nindent 4 }}
+  {{- with .Values.persistence.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  storageClassName: {{ .Values.persistence.storageClass }}
+  accessModes:
+    - {{ .Values.persistence.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size }}
+{{- end }}
+---
+{{- if .Values.gradleCache.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "jenkins.fullname" . }}-gradle-cache
+  labels:
+    {{- include "jenkins.labels" . | nindent 4 }}
+    cache: gradle
+  annotations:
+    description: "Gradle dependency cache - shared across agent builds"
+spec:
+  storageClassName: {{ .Values.gradleCache.storageClass }}
+  accessModes:
+    - {{ .Values.gradleCache.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.gradleCache.size }}
+{{- end }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "jenkins.fullname" . }}-backup
+  labels:
+    {{- include "jenkins.labels" . | nindent 4 }}
+    purpose: backup
+  annotations:
+    retention-policy: "90-days"
+    backup-schedule: "daily-0200-utc"
+spec:
+  storageClassName: {{ .Values.persistence.storageClass }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi

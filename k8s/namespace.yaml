@@ -1,0 +1,14 @@
+# ============================================================================
+# Jenkins Namespace
+# ============================================================================
+# Creates a dedicated Kubernetes namespace for all Jenkins resources.
+# This isolates Jenkins workloads (controller, agents, PVCs) from other
+# cluster services and simplifies RBAC scoping.
+# ============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jenkins
+  labels:
+    app: jenkins
+    purpose: ci-cd

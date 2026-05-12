@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "jenkins.fullname" . }}
+  labels:
+    {{- include "jenkins.labels" . | nindent 4 }}
+  annotations:
+    security.audit/tls: "Terminated at ingress via cert-manager"
+spec:
+  type: {{ .Values.service.http.type }}
+  selector:
+    {{- include "jenkins.selectorLabels" . | nindent 4 }}
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+  ports:
+    - name: http
+      port: {{ .Values.service.http.port }}
+      targetPort: {{ .Values.service.http.targetPort }}
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "jenkins.fullname" . }}-jnlp
+  labels:
+    {{- include "jenkins.labels" . | nindent 4 }}
+  annotations:
+    description: "Internal JNLP service for agent pods (not publicly exposed)"
+spec:
+  type: {{ .Values.service.jnlp.type }}
+  selector:
+    {{- include "jenkins.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: jnlp
+      port: {{ .Values.service.jnlp.port }}
+      targetPort: {{ .Values.service.jnlp.targetPort }}
+      protocol: TCP

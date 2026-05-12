@@ -1,0 +1,38 @@
+# ============================================================================
+# Jenkins Service (NodePort)
+# ============================================================================
+# Exposes the Jenkins controller to the host network via NodePort.
+#
+# Ports:
+#   - 8080 -> NodePort 30080  : Jenkins Web UI
+#   - 50000 -> NodePort 30050 : JNLP agent communication
+#
+# On Minikube, access the UI with:
+#   minikube service jenkins -n jenkins --url
+#
+# For production clusters, replace NodePort with LoadBalancer or Ingress.
+# ============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins
+  namespace: jenkins
+  labels:
+    app: jenkins
+spec:
+  type: NodePort
+  selector:
+    app: jenkins
+  ports:
+    # Jenkins Web UI
+    - name: http
+      port: 8080
+      targetPort: 8080
+      nodePort: 30080
+      protocol: TCP
+    # JNLP agent communication — dynamic Kubernetes pods connect here
+    - name: jnlp
+      port: 50000
+      targetPort: 50000
+      nodePort: 30050
+      protocol: TCP

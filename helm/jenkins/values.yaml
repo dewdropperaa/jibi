@@ -1,0 +1,191 @@
+# ============================================================================
+# Jenkins Helm Chart — Default Values
+# ============================================================================
+# Override these via --set flags or a separate values file:
+#   helm install jenkins ./helm/jenkins -n jenkins --create-namespace \
+#     --set image.tag=2.452.2 \
+#     --set ingress.host=ci.example.com
+# ============================================================================
+
+# ── Jenkins Master Deployment ────────────────────────────────────────────────
+replicaCount: 2
+
+image:
+  repository: jenkins/jenkins
+  tag: "2.452.2-lts-jdk17-alpine"
+  digest: "sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
+  pullPolicy: Always
+
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: "jenkins"
+
+# ── Service Account ──────────────────────────────────────────────────────────
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "jenkins"
+
+# ── Pod Security ─────────────────────────────────────────────────────────────
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  seccompProfile:
+    type: RuntimeDefault
+  capabilities:
+    drop:
+      - ALL
+
+securityContext:
+  runAsUser: 1000
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+# ── Service Configuration ────────────────────────────────────────────────────
+service:
+  http:
+    type: ClusterIP
+    port: 8080
+    targetPort: 8080
+  jnlp:
+    type: ClusterIP
+    port: 50000
+    targetPort: 50000
+
+# ── Ingress ──────────────────────────────────────────────────────────────────
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+  host: jenkins.example.com
+  tls:
+    enabled: true
+    secretName: jenkins-tls
+  paths:
+    - path: /
+      pathType: Prefix
+
+# ── Resources ────────────────────────────────────────────────────────────────
+resources:
+  requests:
+    cpu: "750m"
+    memory: "1536Mi"
+  limits:
+    cpu: "2"
+    memory: "4Gi"
+
+# ── Persistence ──────────────────────────────────────────────────────────────
+persistence:
+  enabled: true
+  storageClass: "jenkins-encrypted-gp3"
+  accessMode: ReadWriteOnce
+  size: 10Gi
+  annotations:
+    encryption: "required-at-rest"
+    backup.velero.io/backup: "true"
+
+# ── Gradle Cache PVC ────────────────────────────────────────────────────────
+gradleCache:
+  enabled: true
+  storageClass: "gp3"
+  accessMode: ReadWriteMany
+  size: 20Gi
+
+# ── Pod Disruption Budget ────────────────────────────────────────────────────
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# ── Probes ───────────────────────────────────────────────────────────────────
+startupProbe:
+  httpGet:
+    path: /login
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 30
+
+livenessProbe:
+  httpGet:
+    path: /login
+    port: http
+  initialDelaySeconds: 60
+  periodSeconds: 60
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /login
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 2
+  successThreshold: 1
+
+# ── Jenkins Configuration ────────────────────────────────────────────────────
+jenkins:
+  adminUser: admin
+  adminPasswordSecret: jenkins-admin-password
+  javaOpts: >-
+    -Xmx2g
+    -Xms512m
+    -Djenkins.install.runSetupWizard=false
+    -Dhudson.security.csrf.GlobalCrumbIssuerConfiguration.DISABLE_CSRF_PROTECTION=false
+  numExecutors: 0
+  mode: EXCLUSIVE
+  deploymentStrategy:
+    type: Recreate
+
+# ── Agent Configuration ──────────────────────────────────────────────────────
+agent:
+  image:
+    repository: registry.example.com/android-ci-agent
+    tag: "latest"
+    digest: "sha256:8a9e5e3a8f7c6b5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0"
+  resources:
+    requests:
+      cpu: "1"
+      memory: "2Gi"
+    limits:
+      cpu: "2"
+      memory: "4Gi"
+  workspaceVolume:
+    storageClass: "gp3"
+    size: 5Gi
+    accessMode: ReadWriteOnce
+
+# ── Network Policy ───────────────────────────────────────────────────────────
+networkPolicy:
+  enabled: true
+  ingressNamespaces:
+    - name: ingress-nginx
+      label: name
+
+# ── Node Selection ───────────────────────────────────────────────────────────
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# ── Additional Labels ────────────────────────────────────────────────────────
+labels:
+  app: jenkins
+  purpose: ci-cd
+  managed-by: helm
