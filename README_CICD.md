@@ -1,13 +1,47 @@
 # CI/CD Setup for Android + Supabase
 
-This repository includes GitHub Actions pipelines for:
+This repository contains two CI/CD paths:
+
+- GitHub Actions for repository-hosted CI/CD automation
+- Jenkins for local validation and a production-oriented pipeline definition
+
+## Jenkins Pipelines
+
+### Local Jenkins (`Jenkinsfile.local`)
+
+`Jenkinsfile.local` is the recommended starting point for a professional local Jenkins setup on a single Windows executor. It is designed to:
+
+- validate the Android workspace on the Jenkins node
+- generate `local.properties` automatically when only the local Android SDK path is available
+- run `ktlintCheck`, `detekt`, and unit tests
+- optionally validate release signing with `assembleRelease --dry-run`
+
+Use a Jenkins **Pipeline** job with:
+
+- **Definition**: Pipeline script from SCM
+- **Script Path**: `Jenkinsfile.local`
+
+### Production Jenkins (`Jenkinsfile`)
+
+`Jenkinsfile` is the production-oriented pipeline. It expects additional infrastructure and integrations, including:
+
+- Jenkins shared libraries
+- Kubernetes-based Jenkins agents
+- Jenkins credentials for signing, Firebase, Supabase, SonarQube, MobSF, and Slack
+- webhook and plugin configuration
+
+Use `Jenkinsfile.local` first, then promote to `Jenkinsfile` once the full Jenkins platform is ready.
+
+## GitHub Actions
+
+The repository also includes GitHub Actions workflows:
 
 - Continuous Integration: `.github/workflows/ci.yml`
 - Continuous Delivery: `.github/workflows/cd.yml`
 
-The CD pipeline builds a signed Android release APK, distributes it to Firebase App Distribution (internal testers), and applies Supabase migrations to production.
+The CD workflow builds a signed Android release APK, distributes it to Firebase App Distribution (internal testers), and applies Supabase migrations to production.
 
-## Workflows
+## Workflow Details
 
 ### CI (`ci.yml`)
 
