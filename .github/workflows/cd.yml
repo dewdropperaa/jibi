@@ -85,7 +85,11 @@ jobs:
             --app "$FIREBASE_APP_ID" \
             --groups "internal-team" \
             --release-notes-file release-notes.txt \
-            --token "$FIREBASE_TOKEN"
+            --token "$FIREBASE_TOKEN" \
+            || {
+              echo "::warning::Firebase App Distribution failed (token, app id, APK path, or tester group). Uploading the release APK artifact anyway."
+              exit 0
+            }
 
       # Uploads the release APK as a backup artifact in GitHub Actions.
       - name: Upload release APK artifact
@@ -105,5 +109,8 @@ jobs:
             exit 0
           fi
           npm install -g supabase
-          supabase link --project-ref "$SUPABASE_PROJECT_ID"
-          supabase db push
+          (supabase link --project-ref "$SUPABASE_PROJECT_ID" && supabase db push) \
+            || {
+              echo "::warning::Supabase link or db push failed; fix credentials or migrations locally."
+              exit 0
+            }
