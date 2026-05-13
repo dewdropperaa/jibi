@@ -36,8 +36,12 @@ android {
         release {
             isMinifyEnabled = false
             val releaseKeystore = rootProject.file("release.keystore")
+            val releaseSigningEnvPresent =
+                !(System.getenv("STORE_PASSWORD") ?: "").isBlank() &&
+                    !(System.getenv("KEY_ALIAS") ?: "").isBlank() &&
+                    !(System.getenv("KEY_PASSWORD") ?: "").isBlank()
             signingConfig =
-                if (releaseKeystore.isFile) {
+                if (releaseKeystore.isFile && releaseKeystore.length() > 0L && releaseSigningEnvPresent) {
                     signingConfigs.getByName("release")
                 } else {
                     signingConfigs.getByName("debug")

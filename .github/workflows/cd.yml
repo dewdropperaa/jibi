@@ -34,13 +34,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      # Creates release.keystore only when the secret is set (otherwise Gradle uses debug signing).
+      # Creates release.keystore only when all signing secrets are set. A lone KEYSTORE_BASE64
+      # (or missing passwords) would still create a file and force release signingConfig, which
+      # then fails at packageRelease — CI would still pass because it never uses that keystore.
       - name: Decode Android keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
         run: |
-          if [ -n "$KEYSTORE_BASE64" ]; then
+          if [ -n "${KEYSTORE_BASE64:-}" ] && [ -n "${KEY_ALIAS:-}" ] && [ -n "${KEY_PASSWORD:-}" ] && [ -n "${STORE_PASSWORD:-}" ]; then
             echo "$KEYSTORE_BASE64" | base64 --decode > release.keystore
+            if [ ! -s release.keystore ]; then
+              echo "Keystore decode produced an empty file; removing it so Gradle falls back to debug signing."
+              rm -f release.keystore
+            fi
+          else
+            echo "Skipping release keystore (set KEYSTORE_BASE64, KEY_ALIAS, KEY_PASSWORD, and STORE_PASSWORD together for signed release builds)."
           fi
 
       # Ensures Gradle wrapper can run on Linux runners.
