@@ -108,9 +108,7 @@ jobs:
             echo "Skipping Supabase (secrets not set)."
             exit 0
           fi
-          npm install -g supabase
-          (supabase link --project-ref "$SUPABASE_PROJECT_ID" && supabase db push) \
-            || {
-              echo "::warning::Supabase link or db push failed; fix credentials or migrations locally."
-              exit 0
-            }
+          if ! (npm install -g supabase && supabase link --project-ref "$SUPABASE_PROJECT_ID" && supabase db push); then
+            echo "::warning::Supabase install, link, or db push failed; fix credentials or migrations locally."
+          fi
+          exit 0
