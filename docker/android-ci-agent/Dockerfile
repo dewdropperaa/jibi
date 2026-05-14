@@ -8,7 +8,7 @@
 #   docker build -t registry.example.com/android-ci-agent:1.0.0 .
 #   docker push registry.example.com/android-ci-agent:1.0.0
 # ============================================================================
-FROM thyrlian/android-sdk@sha256:8a9e5e3a8f7c6b5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0
+FROM thyrlian/android-sdk@sha256:bb9ed3686968550d927228777bca787dd7913e679f1e73e85525ba0094ea170d
 
 # AUDIT FIX #13: Pre-install Firebase CLI and Supabase CLI at image build time
 RUN npm install -g firebase-tools@13.10.0 && \

@@ -12,7 +12,7 @@ jobs:
     steps:
       # Checks out full history so release notes extraction matches CD behavior.
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
