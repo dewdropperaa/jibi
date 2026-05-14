@@ -14,3 +14,7 @@
 .cxx
 local.properties
 release.keystore
+android-release.jks
+app-release-backup.apk
+hs_err_pid*.log
+replay_pid*.log
