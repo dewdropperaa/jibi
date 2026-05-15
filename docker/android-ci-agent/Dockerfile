@@ -10,12 +10,15 @@
 FROM thyrlian/android-sdk@sha256:bb9ed3686968550d927228777bca787dd7913e679f1e73e85525ba0094ea170d
 
 # AUDIT FIX #13: Pre-install Firebase CLI and Supabase CLI at image build time.
-# Base image includes wget but not Node/npm/curl (missing binary => exit 127).
+# Base image apt nodejs/npm is unreliable; install Node from official tarball instead.
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends nodejs npm && \
+    apt-get install -y --no-install-recommends ca-certificates curl xz-utils && \
     rm -rf /var/lib/apt/lists/* && \
+    curl -fsSL https://nodejs.org/dist/v20.18.0/node-v20.18.0-linux-x64.tar.xz \
+      | tar -xJ -C /usr/local --strip-components=1 && \
     npm install -g firebase-tools@13.10.0 && \
-    wget -qO- https://github.com/supabase/cli/releases/download/v1.223.4/supabase_1.223.4_linux_amd64.tar.gz | tar xz -C /usr/local/bin supabase
+    curl -fsSL https://github.com/supabase/cli/releases/download/v1.223.4/supabase_1.223.4_linux_amd64.tar.gz \
+      | tar -xz -C /usr/local/bin supabase
 
 # Ensure uid 1000 is named "jenkins" so pod runAsUser:1000 matches Jenkinsfile
 # Gradle cache mount at /home/jenkins/.gradle.

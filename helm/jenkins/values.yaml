@@ -158,7 +158,7 @@ jenkins:
 # Optional: set digest after first publish for immutable pins (see templates/_helpers.tpl).
 agent:
   image:
-    repository: ghcr.io/my-github-org/android-ci-agent
+    repository: ghcr.io/dewdropperaa/android-ci-agent
     tag: "latest"
     digest: ""
   resources:

@@ -74,7 +74,7 @@ spec:
     fsGroup: 1000
   containers:
     - name: android
-      image: ghcr.io/my-github-org/android-ci-agent:latest
+      image: ghcr.io/dewdropperaa/android-ci-agent:latest
       command:
         - cat
       tty: true
