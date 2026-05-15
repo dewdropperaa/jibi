@@ -17,7 +17,7 @@ RUN apt-get update && \
     curl -fsSL https://nodejs.org/dist/v20.18.0/node-v20.18.0-linux-x64.tar.xz \
       | tar -xJ -C /usr/local --strip-components=1 && \
     npm install -g firebase-tools@13.10.0 && \
-    curl -fsSL https://github.com/supabase/cli/releases/download/v1.223.4/supabase_1.223.4_linux_amd64.tar.gz \
+    curl -fsSL https://github.com/supabase/cli/releases/download/v2.98.2/supabase_linux_amd64.tar.gz \
       | tar -xz -C /usr/local/bin supabase
 
 # Ensure uid 1000 is named "jenkins" so pod runAsUser:1000 matches Jenkinsfile
