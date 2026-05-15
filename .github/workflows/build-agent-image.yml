@@ -1,25 +1,57 @@
+# Builds and pushes the Kubernetes Jenkins agent image using the hosted runner
+# Docker engine (no Docker Desktop required). Images go to GHCR; Jenkins pulls
+# ghcr.io/<owner>/android-ci-agent (use a GHCR pull PAT + imagePullSecret if the
+# package is private).
 name: Build CI Agent Image
 
 on:
+  workflow_dispatch:
   push:
+    branches:
+      - main
+      - master
+      - develop
     paths:
-      - 'docker/android-ci-agent/Dockerfile'
+      - 'docker/android-ci-agent/**'
+      - '.github/workflows/build-agent-image.yml'
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/android-ci-agent
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v6
 
-      - name: Login to Docker Hub
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
         uses: docker/login-action@v4
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push agent image
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=sha-
+
+      - name: Build and push
         uses: docker/build-push-action@v7
         with:
           context: ./docker/android-ci-agent
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/android-ci-agent:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

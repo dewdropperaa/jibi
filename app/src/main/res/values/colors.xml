@@ -16,4 +16,6 @@
     <color name="md_card_expense">#3A1A1A</color>
     <color name="white">#FFFFFF</color>
     <color name="transparent">#00000000</color>
+    <!-- Accent used for pipeline verification builds -->
+    <color name="md_pipeline_accent">#B388FF</color>
 </resources>

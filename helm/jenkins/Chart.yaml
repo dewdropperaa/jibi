@@ -21,7 +21,7 @@ annotations:
     - name: jenkins
       image: jenkins/jenkins:lts-jdk17-alpine
     - name: jenkins-agent
-      image: registry.example.com/android-ci-agent
+      image: ghcr.io/my-github-org/android-ci-agent
   artifacthub.io/changes: |
     - kind: added
       description: Initial release with production-hardened configuration

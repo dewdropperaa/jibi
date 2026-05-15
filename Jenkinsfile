@@ -54,7 +54,10 @@ pipeline {
 
     // ── Agent: Kubernetes pod template ──────────────────────────────────────
     // Every stage runs inside a fresh Kubernetes pod.
-    // Image pinned to SHA256 digest for supply chain security.
+    // Agent image is built in GitHub Actions (.github/workflows/build-agent-image.yml)
+    // and pushed to ghcr.io/<GitHub_owner>/android-ci-agent — set the image ref below
+    // to match your owner (pin @sha256:... from the GHCR package page when ready).
+    // Private GHCR: add imagePullSecrets to this Pod spec and a dockerconfigjson secret.
     // Pod security standards enforced (non-root, no privilege escalation).
     agent {
         kubernetes {
@@ -71,7 +74,7 @@ spec:
     fsGroup: 1000
   containers:
     - name: android
-      image: registry.example.com/android-ci-agent@sha256:8a9e5e3a8f7c6b5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0
+      image: ghcr.io/my-github-org/android-ci-agent:latest
       command:
         - cat
       tty: true

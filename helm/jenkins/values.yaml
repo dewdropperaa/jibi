@@ -153,11 +153,14 @@ jenkins:
     type: Recreate
 
 # ── Agent Configuration ──────────────────────────────────────────────────────
+# Agent image is published by .github/workflows/build-agent-image.yml to
+# ghcr.io/<github_owner>/android-ci-agent — replace my-github-org with that owner.
+# Optional: set digest after first publish for immutable pins (see templates/_helpers.tpl).
 agent:
   image:
-    repository: registry.example.com/android-ci-agent
+    repository: ghcr.io/my-github-org/android-ci-agent
     tag: "latest"
-    digest: "sha256:8a9e5e3a8f7c6b5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0"
+    digest: ""
   resources:
     requests:
       cpu: "1"
