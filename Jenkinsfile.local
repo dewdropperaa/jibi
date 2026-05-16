@@ -28,15 +28,27 @@ pipeline {
                     }
 
                     if (-not (Test-Path "local.properties")) {
-                        $sdkDir = Join-Path $env:LOCALAPPDATA "Android\\Sdk"
+                        $sdkCandidates = @(
+                            $env:ANDROID_SDK_ROOT,
+                            $env:ANDROID_HOME,
+                            (Join-Path $env:LOCALAPPDATA "Android\\Sdk")
+                        ) | Where-Object { $_ -and $_.Trim() }
 
-                        if (-not (Test-Path $sdkDir)) {
-                            throw "local.properties is missing and Android SDK was not found under LOCALAPPDATA."
+                        $sdkDir = $sdkCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+
+                        if (-not $sdkDir) {
+                            throw @"
+local.properties is missing and no Android SDK was found.
+Jenkins on Windows often runs as LocalSystem, so LOCALAPPDATA is not your user folder.
+Fix: Manage Jenkins > System > Global properties > Environment variables
+  ANDROID_SDK_ROOT=C:\Users\pc\AppData\Local\Android\Sdk
+Then run the build again.
+"@
                         }
 
                         $escapedSdkDir = $sdkDir -replace "\\\\", "\\\\\\\\"
                         Set-Content -Path "local.properties" -Value "sdk.dir=$escapedSdkDir" -Encoding ASCII
-                        Write-Host "Generated local.properties from the local Android SDK path."
+                        Write-Host "Generated local.properties using SDK: $sdkDir"
                     }
 
                     Write-Host "Java version:"
