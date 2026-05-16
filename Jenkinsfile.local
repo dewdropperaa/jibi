@@ -37,13 +37,8 @@ pipeline {
                         $sdkDir = $sdkCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
 
                         if (-not $sdkDir) {
-                            throw @"
-local.properties is missing and no Android SDK was found.
-Jenkins on Windows often runs as LocalSystem, so LOCALAPPDATA is not your user folder.
-Fix: Manage Jenkins > System > Global properties > Environment variables
-  ANDROID_SDK_ROOT=C:\Users\pc\AppData\Local\Android\Sdk
-Then run the build again.
-"@
+                            throw "local.properties is missing and no Android SDK was found. " +
+                                "Set ANDROID_SDK_ROOT in Manage Jenkins > System > Global properties > Environment variables, then rebuild."
                         }
 
                         $escapedSdkDir = $sdkDir -replace "\\\\", "\\\\\\\\"
